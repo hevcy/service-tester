@@ -1,0 +1,16 @@
+replicaCount: 1
+args: ["pip install schedule; pip install requests; python3 -u /scripts/job.py"]
+image:
+  repository: 'python'
+  tag: '3.12.5-slim@sha256:59c7332a4a24373861c4a5f0eec2c92b87e3efeb8ddef011744ef9a751b1d11c'
+  pullPolicy: always
+resources:
+  requests:
+    cpu: 20m
+    memory: 50Mi
+  limits:
+    memory: 75Mi
+env:
+  normal:
+    SERVICE_TESTER_ENDPOINTS: '${SERVICE_TESTER_ENDPOINTS}'
+    SERVICE_TESTER_SCHEDULE_SECONDS: '${SERVICE_TESTER_SCHEDULE_SECONDS}'

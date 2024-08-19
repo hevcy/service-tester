@@ -1,0 +1,11 @@
+{{- range $path, $_ := .Files.Glob "scripts/*.py" }}
+{{- $filename := trimSuffix (ext $path) (base $path) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-tester-{{ $filename }}
+data:
+  {{ base $path }}: |-
+{{ $.Files.Get $path | indent 4 }}
+---
+{{- end }}
