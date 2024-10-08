@@ -1,24 +1,33 @@
 package main
 
 import (
-    "fmt"
-	"os"
-	"strings"
+	"fmt"
 	"net/http"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
 func main() {
 	endpoints := getEndpoints()
-	c := make(chan endpointStatus)
-	for _, endpoint := range endpoints {
-		go checkEndpoint(endpoint, c)
+	schedule, err := strconv.Atoi(os.Getenv("SERVICE_TESTER_SCHEDULE_SECONDS"))
+	if err != nil {
+		fmt.Println("Schedule could not be converted into a integer, check value of SERVICE_TESTER_SCHEDULE_SECONDS", err)
+		return
 	}
+	for {
+		c := make(chan endpointStatus)
+		for _, endpoint := range endpoints {
+			go checkEndpoint(endpoint, c)
+		}
 
-	result := make([]endpointStatus, len(endpoints))
-	for i, _ := range endpoints {
-		result[i] = <-c
-		fmt.Printf("%s, %s, %d, %s\n", result[i].time, result[i].url, result[i].statuscode, result[i].error)
+		result := make([]endpointStatus, len(endpoints))
+		for i, _ := range endpoints {
+			result[i] = <-c
+			fmt.Printf("%s, %s, %d, %s\n", result[i].time, result[i].url, result[i].statuscode, result[i].error)
+		}
+		time.Sleep(time.Duration(schedule) * time.Second)
 	}
 }
 
